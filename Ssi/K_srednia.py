@@ -1,6 +1,11 @@
 import matplotlib.pyplot as plt
 import math
 import random
+import numpy as np
+
+
+def median(lista):
+    return sorted(lista)[len(lista) // 2] if len(lista) % 2 == 1 else (sorted(lista)[len(lista) // 2 - 1] + sorted(lista)[len(lista) // 2]) / 2
 
 def euklides(a, b):
     return math.sqrt((a[0]-b[0])**2 + (a[1]-b[1])**2)
@@ -29,6 +34,42 @@ def k_srednia(m, iters, miara, checkpoints=[4, 10]):
             if xgr:
                 srednia = tuple(sum(i[k] for i in xgr) / len(xgr) for k in range(len(xgr[0])))
                 nowe_V.append(srednia)
+            else:
+                nowe_V.append(V[j])
+
+        if V == nowe_V and ite >= 10:
+            print(f'Algorytm zakończył się po {ite + 1} iteracjach')
+            break
+
+        V = nowe_V
+
+        if ite + 1 in checkpoints:
+            checkpoints_data[ite + 1] = (list(V), grupy)
+
+    return V, grupy, checkpoints_data
+
+def k_mediana(m, iters, miara, checkpoints=[4, 10]):
+    probki = list(zip(x1, x2))
+    V = random.sample(probki, m)
+    checkpoints_data = {}
+
+    for ite in range(iters):
+        grupy = [[] for _ in range(m)]
+        for s in probki:
+            if miara == 'euk':
+                odleglosc = [euklides(s, x) for x in V]
+            elif miara == 'man':
+                odleglosc = [manhattan(s, x) for x in V]
+            u = odleglosc.index(min(odleglosc))
+            grupy[u].append(s)
+
+        nowe_V = []
+        for j in range(m):
+            xgr = grupy[j]
+            if xgr:
+                mediana_x1 = median([i[0] for i in xgr])
+                mediana_x2 = median([i[1] for i in xgr])
+                nowe_V.append((mediana_x1, mediana_x2))
             else:
                 nowe_V.append(V[j])
 
